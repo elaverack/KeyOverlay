@@ -8,6 +8,9 @@ using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 
+using System.Media;
+using System.Diagnostics;
+
 namespace KeyOverlay
 {
     public class AppWindow
@@ -138,6 +141,7 @@ namespace KeyOverlay
                     for (var i = 0; i < _keyList.Count; i++)
                     {
                         var key = _keyList[i];
+                        key.Release = false;
 
                         if (key.isKey && Keyboard.IsKeyPressed(key.KeyboardKey) ||
                                 !key.isKey && Mouse.IsButtonPressed(key.MouseButton))
@@ -147,6 +151,7 @@ namespace KeyOverlay
                         }
                         else
                         {
+                            if (key.Hold != 0) key.Release = true;
                             key.Hold = 0;
                             _squareList[i].FillColor = _backgroundColor;
                         }
@@ -184,26 +189,39 @@ namespace KeyOverlay
         private void MoveBars(List<Key> keyList, List<RectangleShape> squareList)
         {
             var moveDist = _clock.Restart().AsSeconds() * _barSpeed;
+            var sound  = new SoundPlayer(@"click.wav");
 
             foreach (var key in keyList)
             {
+
                 if (key.Hold == 1)
                 {
                     var rect = CreateItems.CreateBar(squareList.ElementAt(keyList.IndexOf(key)), _outlineThickness,
                         moveDist);
                     key.BarList.Add(rect);
-                    key.Counter++;
+                    key.Counter = 1;
+                    
+                    sound.Play();
+
                 }
                 else if (key.Hold > 1)
                 {
                     var rect = key.BarList.Last();
                     rect.Size = new Vector2f(rect.Size.X, rect.Size.Y + moveDist);
+
+                    //NOTE: attempted to create visible divisions between active frames
+                    // var div = CreateItems.CreateDiv(squareList.ElementAt(keyList.IndexOf(key)), 0, moveDist);
+                    // key.BarList.Add(div);
+
+                    key.Counter = key.Hold;
                 }
 
-                foreach (var rect in key.BarList)
-                    rect.Position = new Vector2f(rect.Position.X, rect.Position.Y - moveDist);
-                if (key.BarList.Count > 0 && key.BarList.First().Position.Y + key.BarList.First().Size.Y < 0)
-                    key.BarList.RemoveAt(0);
+                if (key.Release) sound.Play();
+
+
+                foreach (var rect in key.BarList) rect.Position = new Vector2f(rect.Position.X, rect.Position.Y - moveDist);
+                if (key.BarList.Count > 0 && key.BarList.First().Position.Y + key.BarList.First().Size.Y < 0) key.BarList.RemoveAt(0);
+
             }
         }
     }

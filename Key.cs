@@ -8,6 +8,7 @@ namespace KeyOverlay
     public class Key
     {
         public int Hold { get; set; }
+        public bool Release = false;
         public List<RectangleShape> BarList = new();
         public string KeyLetter = "";
         public readonly Keyboard.Key KeyboardKey;

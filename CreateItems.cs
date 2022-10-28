@@ -19,6 +19,15 @@ namespace KeyOverlay
             return rect;
         }
 
+        public static RectangleShape CreateDiv(RectangleShape square, int outlineThickness, float barSpeed)
+        {
+            var rect = new RectangleShape(new Vector2f(square.Size.X + outlineThickness * 2, 1));
+            rect.Position = new Vector2f(square.Position.X - outlineThickness,
+                square.Position.Y - square.Size.Y - square.OutlineThickness);
+            rect.FillColor = CreateColor("255,255,255,125");
+            return rect;
+        }
+
         public static List<RectangleShape> CreateKeys(List<Key> keys, float size, float ratioX, float ratioY,
             int margin, int outlineThickness)
         {
@@ -46,7 +55,7 @@ namespace KeyOverlay
         public static Text CreateText(string key, RectangleShape square, Color color, bool counter)
         {
             var text = new Text(key, _font);
-            text.CharacterSize = (uint)(50 * square.Size.Y / 140);
+            text.CharacterSize = (uint)(50 * square.Size.Y / 120);
             text.Style = Text.Styles.Bold;
             text.FillColor = color;
             text.Origin = new Vector2f(text.GetLocalBounds().Width / 2f, 32 * square.Size.Y / 140f);
